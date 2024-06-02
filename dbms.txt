@@ -1,0 +1,1247 @@
+Q4. Implement the following Queries
+1. Create a collection named books.
+2. Insert 5 records with field TITLE, DESCRIPTION, BY,URL,TAGS AND LIKES 3. Insert 1 more document in collection with additional field of user name and comments.
+4. Display all the documents whose title is 'MySQL'.
+5. Display all the documents written by 'john' or whose title is 'mongodb.
+6. Display all the documents whose title is 'mongodb' and written by 'john".
+7. Display all the documents whose like is greater than 10.
+8. Display all the documents whose like is greater than 100 and whose title is either 'mongodb' or written by 'john'.
+9. Update the title of 'MySQL' document to 'MySQL overview
+10. Delete the document titled 'nosql overview'.
+11. Display exactly two documents written by 'john'.
+12. Display the second document published by 'john'.
+13. Display all the books in the sorted fashion.
+-- 1. Create a table named books.
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    TITLE VARCHAR(255),
+    DESCRIPTION TEXT,
+    AUTHOR VARCHAR(255),
+    URL VARCHAR(255),
+    TAGS VARCHAR(255),
+    LIKES INT
+);
+
+-- 2. Insert 5 records with fields TITLE, DESCRIPTION, AUTHOR, URL, TAGS, and LIKES.
+INSERT INTO books (TITLE, DESCRIPTION, AUTHOR, URL, TAGS, LIKES) VALUES
+('Book 1', 'Description 1', 'Author 1', 'http://example.com/book1', 'tag1,tag2', 5),
+('Book 2', 'Description 2', 'john', 'http://example.com/book2', 'tag2,tag3', 15),
+('MySQL', 'Description 3', 'Author 3', 'http://example.com/book3', 'tag1,tag3', 25),
+('Book 4', 'Description 4', 'Author 4', 'http://example.com/book4', 'tag4', 35),
+('mongodb', 'Description 5', 'john', 'http://example.com/book5', 'tag1,tag5', 45);
+
+-- 3. Insert 1 more document in the collection with an additional field of user name and comments.
+ALTER TABLE books ADD COLUMN USERNAME VARCHAR(255), ADD COLUMN COMMENTS TEXT;
+INSERT INTO books (TITLE, DESCRIPTION, AUTHOR, URL, TAGS, LIKES, USERNAME, COMMENTS) VALUES
+('Book 6', 'Description 6', 'Author 6', 'http://example.com/book6', 'tag6', 55, 'user1', 'This is a comment.');
+
+-- 4. Display all the documents whose title is 'MySQL'.
+SELECT * FROM books WHERE TITLE = 'MySQL';
+
+-- 5. Display all the documents written by 'john' or whose title is 'mongodb'.
+SELECT * FROM books WHERE AUTHOR = 'john' OR TITLE = 'mongodb';
+
+-- 6. Display all the documents whose title is 'mongodb' and written by 'john'.
+SELECT * FROM books WHERE TITLE = 'mongodb' AND AUTHOR = 'john';
+
+-- 7. Display all the documents whose likes are greater than 10.
+SELECT * FROM books WHERE LIKES > 10;
+
+-- 8. Display all the documents whose likes are greater than 100 and whose title is either 'mongodb' or written by 'john'.
+SELECT * FROM books WHERE LIKES > 100 AND (TITLE = 'mongodb' OR AUTHOR = 'john');
+
+-- 9. Update the title of 'MySQL' document to 'MySQL overview'.
+UPDATE books SET TITLE = 'MySQL overview' WHERE TITLE = 'MySQL';
+
+-- 10. Delete the document titled 'nosql overview'.
+DELETE FROM books WHERE TITLE = 'nosql overview';
+
+-- 11. Display exactly two documents written by 'john'.
+SELECT * FROM books WHERE AUTHOR = 'john' LIMIT 2;
+
+-- 12. Display the second document published by 'john'.
+SELECT * FROM books WHERE AUTHOR = 'john' LIMIT 1 OFFSET 1;
+
+-- 13. Display all the books in sorted fashion.
+SELECT * FROM books ORDER BY TITLE ASC;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Q9. Consider the following six relations for all order processing database application is a company.
+Customer(cust #, cname, city)
+order (order #, odate, cust #, ord_amt)
+order_item(order #, item #, Qty)
+item(item #, unit_price)
+shipment(order #, waterhouse #, ship_date)
+warehouse(warehouse #, city)
+Here, ord_amt refers to total amount of an order; odate is the date the order was placed; ship_date is the date an order is shipped from the warehouse. Assume that an order can be shipped from several warehouses.
+Specify the following SQL queries:
+1. List the order # and ship_date for all orders shipped from warehouse number W2.
+2. List the warehouse information from which the customer named 'Jose Lopez' was shipped his order.
+3. List the orders that were not shipped within 30 days of ordering.
+4. List the order # for orders that were shipped from all warehouse that the company has in New York.
+5. Write a cursor to extract order details
+-- Customers Table
+-- Contains a list of customers. Each row represents a customer and includes information such as their contact details.
+-- Primary key: custno (customer number)
+CREATE TABLE IF NOT EXISTS Customers (
+    custno INT PRIMARY KEY,
+    cname VARCHAR(100),
+    city VARCHAR(100)
+    -- Add other customer-related columns here (e.g., email, phone)
+);
+
+-- Orders Table
+-- Contains a list of orders. Each order is placed by a customer and has a corresponding Customer_ID.
+-- Primary key: orderno (order number)
+-- Foreign key: custno references Customers(custno)
+CREATE TABLE IF NOT EXISTS Orders (
+    orderno INT PRIMARY KEY,
+    odate DATE,
+    custno INT,
+    ord_amt DECIMAL(10, 2), -- Adjust data type as needed
+    FOREIGN KEY (custno) REFERENCES Customers(custno)
+);
+
+-- Products Table
+-- Contains a list of products. Each row represents a product.
+-- Primary key: itemno (item number)
+CREATE TABLE IF NOT EXISTS Products (
+    itemno INT PRIMARY KEY,
+    product_name VARCHAR(100),
+    description TEXT,
+    price DECIMAL(10, 2), -- Adjust data type as needed
+    stock_quantity INT -- Adjust data type as needed
+    -- Add other product-related columns here
+);
+
+-- OrderItems Table
+-- Contains a list of order items. Each row represents an item on an order.
+-- Each order can have multiple rows in this table.
+-- Foreign key: orderno references Orders(orderno)
+-- Foreign key: itemno references Products(itemno)
+CREATE TABLE IF NOT EXISTS OrderItems (
+    order_detail_id INT PRIMARY KEY,
+    orderno INT,
+    itemno INT,
+    quantity INT,
+    order_price DECIMAL(10, 2), -- Adjust data type as needed
+    FOREIGN KEY (orderno) REFERENCES Orders(orderno),
+    FOREIGN KEY (itemno) REFERENCES Products(itemno)
+);
+
+-- Warehouse Table (Assumption, as it is referenced in queries but not defined)
+CREATE TABLE IF NOT EXISTS Warehouse (
+    warehouse_id INT PRIMARY KEY,
+    city VARCHAR(100)
+    -- Add other warehouse-related columns here
+);
+
+-- Shipment Table (Assumption, as it is referenced in queries but not defined)
+CREATE TABLE IF NOT EXISTS Shipment (
+    shipment_id INT PRIMARY KEY,
+    orderno INT,
+    warehouse_id INT,
+    ship_date DATE,
+    FOREIGN KEY (orderno) REFERENCES Orders(orderno),
+    FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id)
+);
+
+-- 1. List the orders that were not shipped within 30 days of ordering.
+SELECT o.orderno, o.odate
+FROM Orders o
+LEFT JOIN Shipment s ON o.orderno = s.orderno
+WHERE s.ship_date IS NULL OR DATEDIFF(s.ship_date, o.odate) > 30;
+
+-- 2. List the warehouse information from which the customer named 'Jose Lopez' was shipped his order.
+SELECT w.warehouse_id, w.city
+FROM Warehouse w
+JOIN Shipment s ON w.warehouse_id = s.warehouse_id
+JOIN Orders o ON s.orderno = o.orderno
+JOIN Customers c ON o.custno = c.custno
+WHERE c.cname = 'Jose Lopez';
+
+-- 3. List the orders and ship_date for all orders shipped from warehouse number two in New York.
+SELECT o.orderno, s.ship_date
+FROM Orders o
+JOIN Shipment s ON o.orderno = s.orderno
+JOIN Warehouse w ON s.warehouse_id = w.warehouse_id
+WHERE w.city = 'New York' AND w.warehouse_id = 2;
+
+-- 4. List the order # for orders that were shipped from all warehouses except Las Vegas, New Mexico.
+SELECT o.orderno
+FROM Orders o
+JOIN Shipment s ON o.orderno = s.orderno
+JOIN Warehouse w ON s.warehouse_id = w.warehouse_id
+WHERE w.city NOT IN ('Las Vegas', 'New Mexico');
+
+-- 5. Write a cursor to extract order details.
+DELIMITER //
+CREATE PROCEDURE GetOrderDetails()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE o_id INT;
+    DECLARE o_date DATE;
+    DECLARE cur CURSOR FOR SELECT orderno, odate FROM Orders;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur;
+    read_loop: LOOP
+        FETCH cur INTO o_id, o_date;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- Process order details here (e.g., print or store)
+        -- Example: SELECT * FROM OrderItems WHERE orderno = o_id;
+    END LOOP;
+    CLOSE cur;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+12. A book seller wants to keep following information
+1. Name, mobile, title of books purchased, category of books.(Biographic, Cultural, Historical, Cooking, Kids)
+2. List names of persons and categories of books they purchased and total cost. 
+3. If a person purchase books of Rs. 5000/- then he is allowed to purchase additional books of Rs. 1000/-
+4List of persons who purchased books more than Rs. 5000/-.
+3. Name of person who purchased minimum amount of books and a name of person who purchased maximum amount of books.
+6. Total sell (count of books and amount) during given period.
+7. Count of books sold in each category.
+8. Count of persons who purchased books of cost more than Rs. 3000/-.
+9. List names of persons who purchased books more than 3 times in a given period.
+ 10. List of different books purchased during given period.
+-- Table 1: Purchases
+CREATE TABLE Purchases (
+    PurchaseID INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerName VARCHAR(255),
+    Mobile VARCHAR(15),
+    BookTitle VARCHAR(255),
+    Category VARCHAR(50),
+    Price DECIMAL(10, 2)
+);
+
+-- Table 2: Customers
+CREATE TABLE Customers (
+    CustomerName VARCHAR(255) PRIMARY KEY,
+    Mobile VARCHAR(15)
+);
+
+-- Table 3: Books
+CREATE TABLE Books (
+    BookTitle VARCHAR(255) PRIMARY KEY,
+    Category VARCHAR(50)
+);
+
+-- Inserting sample data
+INSERT INTO Purchases (CustomerName, Mobile, BookTitle, Category, Price) VALUES
+('John Doe', '1234567890', 'The Biography of Steve Jobs', 'Biographic', 600),
+('Jane Smith', '9876543210', 'French Cuisine Cookbook', 'Cooking', 800),
+('John Doe', '1234567890', 'World History', 'Historical', 700);
+
+INSERT INTO Customers (CustomerName, Mobile) VALUES
+('John Doe', '1234567890'),
+('Jane Smith', '9876543210');
+
+INSERT INTO Books (BookTitle, Category) VALUES
+('The Biography of Steve Jobs', 'Biographic'),
+('French Cuisine Cookbook', 'Cooking'),
+('World History', 'Historical');
+
+-- 1. Name, mobile, title of books purchased, category of books.
+SELECT CustomerName, Mobile, BookTitle, Category FROM Purchases;
+
+-- 2. List names of persons and categories of books they purchased and total cost.
+SELECT CustomerName, Category, SUM(Price) AS TotalCost
+FROM Purchases
+GROUP BY CustomerName, Category;
+
+-- 3. List of persons who purchased books more than Rs. 5000/-.
+SELECT CustomerName
+FROM (
+    SELECT CustomerName, SUM(Price) AS TotalCost
+    FROM Purchases
+    GROUP BY CustomerName
+) AS TotalCosts
+WHERE TotalCost > 5000;
+
+-- 4. Name of person who purchased minimum amount of books and a name of person who purchased maximum amount of books.
+SELECT CustomerName
+FROM (
+    SELECT CustomerName, SUM(Price) AS TotalCost
+    FROM Purchases
+    GROUP BY CustomerName
+) AS TotalCosts
+ORDER BY TotalCost
+LIMIT 1;
+
+SELECT CustomerName
+FROM (
+    SELECT CustomerName, SUM(Price) AS TotalCost
+    FROM Purchases
+    GROUP BY CustomerName
+) AS TotalCosts
+ORDER BY TotalCost DESC
+LIMIT 1;
+
+-- 5. Total sell (count of books and amount) during given period.
+SELECT COUNT(*) AS TotalBooks, SUM(Price) AS TotalAmount FROM Purchases;
+
+-- 6. Count of books sold in each category.
+SELECT Category, COUNT(*) AS TotalBooksSold FROM Purchases GROUP BY Category;
+
+-- 7. Count of persons who purchased books of cost more than Rs. 3000/-.
+SELECT COUNT(*) AS TotalPersons
+FROM (
+    SELECT CustomerName, SUM(Price) AS TotalCost
+    FROM Purchases
+    GROUP BY CustomerName
+) AS TotalCosts
+WHERE TotalCost > 3000;
+
+-- 8. List names of persons who purchased books more than 3 times in a given period.
+SELECT CustomerName
+FROM (
+    SELECT CustomerName, COUNT(*) AS PurchaseCount
+    FROM Purchases
+    GROUP BY CustomerName
+) AS PurchaseCounts
+WHERE PurchaseCount > 3;
+
+-- 9. List of different books purchased during given period.
+SELECT DISTINCT BookTitle FROM Purchases;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+5. Consider the following database:
+Employee (emp_no, name, skill, pay rate)
+Position (posting_no, skill)
+Duty_allocation (posting_no, emp_no, day, shift(day/night))
+1. Find the shift for the employee 'XYZ':
+2.Get count of different employee of each shift:
+3.Find the employee eligible to fill a position:
+4.Find employee with the lowest pay rate:
+5 Find the name and rate of pay of all employee who are allocated to duty:
+6.Count the number of employees
+7.Calculate the total payrate of the company
+8.Calculate the average payrate of the company for each employee.
+9.Find out the minimum payrate and maximum payrate of a company using aggregation. 
+10. Create a view for employees having salary >=50000 and stays in 'Mumbai and Pune' 
+11. Creat trigger after delete to archive the deleted employee record into 'archive_record table.
+-- Create Employee Table
+CREATE TABLE Employee (
+    emp_no INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    skill VARCHAR(255) NOT NULL,
+    pay_rate DECIMAL(10, 2) NOT NULL
+);
+
+-- Create Position Table
+CREATE TABLE Position (
+    posting_no INT PRIMARY KEY,
+    skill VARCHAR(255) NOT NULL
+);
+
+-- Create Duty_allocation Table
+CREATE TABLE Duty_allocation (
+    posting_no INT,
+    emp_no INT,
+    day DATE NOT NULL,
+    shift ENUM('day', 'night') NOT NULL,
+    PRIMARY KEY (posting_no, emp_no, day),
+    FOREIGN KEY (posting_no) REFERENCES Position(posting_no),
+    FOREIGN KEY (emp_no) REFERENCES Employee(emp_no)
+);
+
+-- Create archive_record Table for the Trigger
+CREATE TABLE archive_record (
+    emp_no INT,
+    name VARCHAR(255),
+    skill VARCHAR(255),
+    pay_rate DECIMAL(10, 2),
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+--  1. Find the shift for the employee 'XYZ':
+
+SELECT da.shift
+FROM Employee e
+JOIN Duty_allocation da ON e.emp_no = da.emp_no
+WHERE e.name = 'XYZ';
+
+-- 2. Get count of different employees of each shift:
+
+SELECT shift, COUNT(DISTINCT emp_no) AS employee_count
+FROM Duty_allocation
+GROUP BY shift;
+
+-- 3. Find the employee eligible to fill a position:
+SELECT e.emp_no, e.name
+FROM Employee e
+JOIN Position p ON e.skill = p.skill
+WHERE p.posting_no = <desired_posting_no>; -- Replace <desired_posting_no> with the actual posting number
+
+-- 4. Find the employee with the lowest pay rate:
+
+SELECT emp_no, name, pay_rate
+FROM Employee
+ORDER BY pay_rate ASC
+LIMIT 1;
+
+-- 5. Find the name and rate of pay of all employees who are allocated to duty:
+
+SELECT DISTINCT e.name, e.pay_rate
+FROM Employee e
+JOIN Duty_allocation da ON e.emp_no = da.emp_no;
+
+-- 6. Count the number of employees:
+
+SELECT COUNT(*) AS total_employees
+FROM Employee;
+
+-- 7. Calculate the total pay rate of the company:
+
+SELECT SUM(pay_rate) AS total_pay_rate
+FROM Employee;
+
+-- 8. Calculate the average pay rate of the company for each employee:
+
+SELECT AVG(pay_rate) AS average_pay_rate
+FROM Employee;
+
+-- 9. Find out the minimum pay rate and maximum pay rate of a company using aggregation:
+SELECT MIN(pay_rate) AS minimum_pay_rate, MAX(pay_rate) AS maximum_pay_rate
+FROM Employee;
+
+-- 10. Create a view for employees having salary >= 50000 and stays in 'Mumbai and Pune':
+
+
+CREATE VIEW High_Salary_Mumbai_Pune AS
+SELECT emp_no, name, pay_rate
+FROM Employee
+WHERE pay_rate >= 50000 AND city IN ('Mumbai', 'Pune'); -- Assuming there is a city column in Employee table
+
+
+-- 11. Create a trigger after delete to archive the deleted employee record into 'archive_record' table:
+
+CREATE TABLE archive_record (
+    emp_no INT,
+    name VARCHAR(255),
+    skill VARCHAR(255),
+    pay_rate DECIMAL(10, 2),
+    deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER //
+CREATE TRIGGER after_employee_delete
+AFTER DELETE ON Employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO archive_record (emp_no, name, skill, pay_rate)
+    VALUES (OLD.emp_no, OLD.name, OLD.skill, OLD.pay_rate);
+END;
+//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+23) Consider the following DB
+Emp(ename,street,city)
+Works(enmae,cname,sal)
+Company(cname,city)
+Manager(ename,mname)
+Implement the following SQL queries
+1 Find all companies located in every city in which company 'FBC' is located.
+2. List all managers in of 'FBC' a 10% raise unless the salary become greater than Rs 10 lakhs in such cases give only 2.5% raise.
+3Find those companies whose employees earn a higher salary, on average, than the average salary at FBC'
+4. Find all the employees who work in companies located in 'Pune'
+5Create a view which will display the all the information of manager, the company they work in.
+6. Create a trigger which will update the salary of all employees other than manager with 8 % of their salary and for manager 9 % of their salary.
+-- Create Emp Table
+CREATE TABLE Emp (
+    ename VARCHAR(255) PRIMARY KEY,
+    street VARCHAR(255),
+    city VARCHAR(255)
+);
+
+-- Create Company Table
+CREATE TABLE Company (
+    cname VARCHAR(255) PRIMARY KEY,
+    city VARCHAR(255)
+);
+
+-- Create Works Table
+CREATE TABLE Works (
+    ename VARCHAR(255),
+    cname VARCHAR(255),
+    sal DECIMAL(10, 2),
+    PRIMARY KEY (ename, cname),
+    FOREIGN KEY (ename) REFERENCES Emp(ename),
+    FOREIGN KEY (cname) REFERENCES Company(cname)
+);
+
+-- Create Manager Table
+CREATE TABLE Manager (
+    ename VARCHAR(255),
+    mname VARCHAR(255),
+    PRIMARY KEY (ename, mname),
+    FOREIGN KEY (ename) REFERENCES Emp(ename)
+);
+
+-- Insert sample data into Emp Table
+INSERT INTO Emp (ename, street, city) VALUES
+('John Doe', '123 Elm St', 'Mumbai'),
+('Jane Smith', '456 Oak St', 'Pune'),
+('Alice Johnson', '789 Pine St', 'Mumbai'),
+('Bob Brown', '101 Maple St', 'Pune');
+
+-- Insert sample data into Company Table
+INSERT INTO Company (cname, city) VALUES
+('FBC', 'Mumbai'),
+('ABC', 'Pune'),
+('XYZ', 'Mumbai');
+
+-- Insert sample data into Works Table
+INSERT INTO Works (ename, cname, sal) VALUES
+('John Doe', 'FBC', 800000.00),
+('Jane Smith', 'ABC', 950000.00),
+('Alice Johnson', 'FBC', 700000.00),
+('Bob Brown', 'XYZ', 600000.00);
+
+-- Insert sample data into Manager Table
+INSERT INTO Manager (ename, mname) VALUES
+('John Doe', 'Michael Scott'),
+('Jane Smith', 'Dwight Schrute');
+
+-- 1. Find all companies located in every city in which company 'FBC' is located.
+SELECT cname 
+FROM Company 
+WHERE city IN (SELECT city FROM Company WHERE cname = 'FBC');
+
+-- 2. List all managers in 'FBC' a 10% raise unless the salary becomes greater than Rs 10 lakhs in such cases give only 2.5% raise.
+UPDATE Works 
+SET sal = CASE 
+            WHEN sal * 1.10 <= 1000000 THEN sal * 1.10
+            ELSE sal * 1.025
+          END
+WHERE cname = 'FBC' AND ename IN (SELECT ename FROM Manager);
+
+-- 3. Find those companies whose employees earn a higher salary, on average, than the average salary at 'FBC'.
+SELECT cname 
+FROM Works 
+GROUP BY cname 
+HAVING AVG(sal) > (SELECT AVG(sal) FROM Works WHERE cname = 'FBC');
+
+-- 4. Find all the employees who work in companies located in 'Pune'.
+SELECT ename 
+FROM Works 
+WHERE cname IN (SELECT cname FROM Company WHERE city = 'Pune');
+
+-- 5. Create a view which will display all the information of manager, the company they work in.
+CREATE VIEW ManagerInfo AS
+SELECT m.ename AS manager_name, m.mname, w.cname, w.sal 
+FROM Manager m
+JOIN Works w ON m.ename = w.ename;
+
+-- 6. Create a trigger which will update the salary of all employees other than managers with 8% of their salary and for manager 9% of their salary.
+DELIMITER //
+CREATE TRIGGER salary_update
+AFTER UPDATE ON Works
+FOR EACH ROW
+BEGIN
+    IF NEW.ename IN (SELECT ename FROM Manager) THEN
+        SET NEW.sal = OLD.sal * 1.09;
+    ELSE
+        SET NEW.sal = OLD.sal * 1.08;
+    END IF;
+END;
+//
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+15. A school wants to keep following information of their students
+1. Name, distance of his house from school, own or rental house 2. Father/Mother working status, type of organization they are working 3. Count of students whose one parent working and both parent working
+4. Count of students leaving in own house and rental.
+5. If the student is deleted from the table then his information must be transferred to other table.
+6. Count of students whose father and mother type of organization is same.
+7. Count of students according to their distances from school.
+8. Name of students whose mother is working and name of students whose father is
+working. List name once if it is coming more than once.
+9. Student whose only one parent is working will be given 10% discount in fees. 
+10. Count of students who have paid their fees and not paid their fees.
+-- Create Student Table
+CREATE TABLE Student (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    distance_from_school DECIMAL(5, 2),
+    house_type ENUM('own', 'rental')
+);
+
+-- Create Parent Table
+CREATE TABLE Parent (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT,
+    type ENUM('father', 'mother'),
+    working_status BOOLEAN,
+    organization_type VARCHAR(255),
+    FOREIGN KEY (student_id) REFERENCES Student(id)
+);
+
+-- Create Fees Table
+CREATE TABLE Fees (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT,
+    paid BOOLEAN,
+    FOREIGN KEY (student_id) REFERENCES Student(id)
+);
+
+-- Create DeletedStudent Table
+CREATE TABLE DeletedStudent (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    distance_from_school DECIMAL(5, 2),
+    house_type ENUM('own', 'rental')
+);
+
+-- Insert sample data into Student Table
+INSERT INTO Student (name, distance_from_school, house_type) VALUES
+('John Doe', 1.5, 'own'),
+('Jane Smith', 2.0, 'rental'),
+('Alice Johnson', 0.5, 'own'),
+('Bob Brown', 3.0, 'rental');
+
+-- Insert sample data into Parent Table
+INSERT INTO Parent (student_id, type, working_status, organization_type) VALUES
+(1, 'father', TRUE, 'IT'),
+(1, 'mother', TRUE, 'Education'),
+(2, 'father', FALSE, NULL),
+(2, 'mother', TRUE, 'Healthcare'),
+(3, 'father', TRUE, 'Finance'),
+(3, 'mother', FALSE, NULL),
+(4, 'father', TRUE, 'IT'),
+(4, 'mother', TRUE, 'IT');
+
+-- Insert sample data into Fees Table
+INSERT INTO Fees (student_id, paid) VALUES
+(1, TRUE),
+(2, FALSE),
+(3, TRUE),
+(4, FALSE);
+
+-- 1. Name, distance of his house from school, own or rental house
+SELECT name, distance_from_school, house_type 
+FROM Student;
+
+-- 2. Father/Mother working status, type of organization they are working
+SELECT s.name, p.type, p.working_status, p.organization_type 
+FROM Student s
+JOIN Parent p ON s.id = p.student_id;
+
+-- 3. Count of students whose one parent working and both parent working
+SELECT
+    (SELECT COUNT(DISTINCT student_id) FROM Parent WHERE working_status = TRUE) AS one_parent_working,
+    (SELECT COUNT(student_id) FROM Parent GROUP BY student_id HAVING COUNT(CASE WHEN working_status THEN 1 END) = 2) AS both_parents_working;
+
+-- 4. Count of students leaving in own house and rental
+SELECT house_type, COUNT(*) AS count 
+FROM Student 
+GROUP BY house_type;
+
+-- 5. If the student is deleted from the table then his information must be transferred to other table.
+CREATE TRIGGER after_student_delete
+AFTER DELETE ON Student
+FOR EACH ROW
+BEGIN
+    INSERT INTO DeletedStudent (id, name, distance_from_school, house_type)
+    VALUES (OLD.id, OLD.name, OLD.distance_from_school, OLD.house_type);
+END;
+
+-- 6. Count of students whose father and mother type of organization is same
+SELECT COUNT(DISTINCT s.id) AS count 
+FROM Student s
+JOIN Parent pf ON s.id = pf.student_id AND pf.type = 'father'
+JOIN Parent pm ON s.id = pm.student_id AND pm.type = 'mother'
+WHERE pf.organization_type = pm.organization_type;
+
+-- 7. Count of students according to their distances from school
+SELECT distance_from_school, COUNT(*) AS count 
+FROM Student 
+GROUP BY distance_from_school;
+
+-- 8. Name of students whose mother is working and name of students whose father is working. List name once if it is coming more than once.
+SELECT DISTINCT s.name 
+FROM Student s
+JOIN Parent p ON s.id = p.student_id
+WHERE p.working_status = TRUE;
+
+-- 9. Student whose only one parent is working will be given 10% discount in fees.
+SELECT s.name, (SELECT IF(COUNT(*) = 1, '10% Discount', 'No Discount') FROM Parent p WHERE p.student_id = s.id AND p.working_status = TRUE) AS discount
+FROM Student s;
+
+-- 10. Count of students who have paid their fees and not paid their fees
+SELECT
+    (SELECT COUNT(*) FROM Fees WHERE paid = TRUE) AS paid_count,
+    (SELECT COUNT(*) FROM Fees WHERE paid = FALSE) AS unpaid_count;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14. A temple where around 1000 pilgrims visit every day wants to keep following record.
+1. Names, gender, phone numbers and state of the pilgrims.
+2. Names of pilgrims visited more than 10 times in given period.
+3. If a pilgrim is visiting 10th time in a month then give him a silver coin.
+4. If a pilgrim is visiting 25th time in a year then give him gold coin.
+5. Prasad is also distributed to pilgrims as 25 rs per laddu if requested.
+6. Display number of pilgrims visiting per month and no. of laddus distributed. 7. Display count of male and female pilgrims visited in given period.
+8. Display the revenue generated by selling laddus during specified period. 
+9. Display state wise count of pilgrims visited temple during specified period. 
+10. Display count of silver and gold coins distributed in given period.
+-- Create Pilgrim Table
+CREATE TABLE Pilgrim (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255),
+    gender ENUM('male', 'female', 'other'),
+    phone_number VARCHAR(15),
+    state VARCHAR(255)
+);
+
+-- Create Visit Table
+CREATE TABLE Visit (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    pilgrim_id INT,
+    visit_date DATE,
+    laddu_requested BOOLEAN,
+    FOREIGN KEY (pilgrim_id) REFERENCES Pilgrim(id)
+);
+
+-- Create Coins Table
+CREATE TABLE Coins (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    pilgrim_id INT,
+    coin_type ENUM('silver', 'gold'),
+    date_awarded DATE,
+    FOREIGN KEY (pilgrim_id) REFERENCES Pilgrim(id)
+);
+
+-- Insert sample data into Pilgrim Table
+INSERT INTO Pilgrim (name, gender, phone_number, state) VALUES
+('John Doe', 'male', '1234567890', 'Karnataka'),
+('Jane Smith', 'female', '0987654321', 'Maharashtra'),
+('Alice Johnson', 'female', '1112223334', 'Tamil Nadu'),
+('Bob Brown', 'male', '4445556667', 'Kerala');
+
+-- Insert sample data into Visit Table
+INSERT INTO Visit (pilgrim_id, visit_date, laddu_requested) VALUES
+(1, '2024-01-01', TRUE),
+(1, '2024-01-02', FALSE),
+(2, '2024-01-01', TRUE),
+(3, '2024-01-01', TRUE),
+(3, '2024-01-02', TRUE),
+(4, '2024-01-01', FALSE);
+
+-- 1. Names, gender, phone numbers and state of the pilgrims
+SELECT name, gender, phone_number, state 
+FROM Pilgrim;
+
+-- 2. Names of pilgrims visited more than 10 times in given period
+SELECT p.name 
+FROM Pilgrim p
+JOIN Visit v ON p.id = v.pilgrim_id
+GROUP BY p.id
+HAVING COUNT(v.id) > 10;
+
+-- 3. If a pilgrim is visiting 10th time in a month then give him a silver coin.
+INSERT INTO Coins (pilgrim_id, coin_type, date_awarded)
+SELECT pilgrim_id, 'silver', CURDATE()
+FROM (
+    SELECT pilgrim_id, COUNT(id) AS visit_count
+    FROM Visit
+    WHERE MONTH(visit_date) = MONTH(CURDATE()) AND YEAR(visit_date) = YEAR(CURDATE())
+    GROUP BY pilgrim_id
+) AS monthly_visits
+WHERE monthly_visits.visit_count = 10;
+
+-- 4. If a pilgrim is visiting 25th time in a year then give him gold coin.
+INSERT INTO Coins (pilgrim_id, coin_type, date_awarded)
+SELECT pilgrim_id, 'gold', CURDATE()
+FROM (
+    SELECT pilgrim_id, COUNT(id) AS visit_count
+    FROM Visit
+    WHERE YEAR(visit_date) = YEAR(CURDATE())
+    GROUP BY pilgrim_id
+) AS yearly_visits
+WHERE yearly_visits.visit_count = 25;
+
+-- 5. Prasad is also distributed to pilgrims as 25 rs per laddu if requested.
+-- This is more of a business logic and should be handled in the application code.
+
+-- 6. Display number of pilgrims visiting per month and no. of laddus distributed
+SELECT 
+    MONTH(visit_date) AS visit_month, 
+    COUNT(DISTINCT pilgrim_id) AS number_of_pilgrims, 
+    SUM(laddu_requested) AS laddus_distributed
+FROM Visit
+GROUP BY visit_month;
+
+-- 7. Display count of male and female pilgrims visited in given period
+SELECT 
+    gender, 
+    COUNT(DISTINCT p.id) AS count
+FROM Pilgrim p
+JOIN Visit v ON p.id = v.pilgrim_id
+WHERE v.visit_date BETWEEN '2024-01-01' AND '2024-12-31'
+GROUP BY gender;
+
+-- 8. Display the revenue generated by selling laddus during specified period
+SELECT 
+    SUM(laddu_requested) * 25 AS revenue
+FROM Visit
+WHERE visit_date BETWEEN '2024-01-01' AND '2024-12-31';
+
+-- 9. Display state wise count of pilgrims visited temple during specified period
+SELECT 
+    p.state, 
+    COUNT(DISTINCT p.id) AS count
+FROM Pilgrim p
+JOIN Visit v ON p.id = v.pilgrim_id
+WHERE v.visit_date BETWEEN '2024-01-01' AND '2024-12-31'
+GROUP BY p.state;
+
+-- 10. Display count of silver and gold coins distributed in given period
+SELECT 
+    coin_type, 
+    COUNT(*) AS count
+FROM Coins
+WHERE date_awarded BETWEEN '2024-01-01' AND '2024-12-31'
+GROUP BY coin_type;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+15. A school wants to keep following information of their students
+1. Name, distance of his house from school, own or rental house 2. Father/Mother working status, type of organization they are working 3. Count of students whose one parent working and both parent working
+4. Count of students leaving in own house and rental.
+5. If the student is deleted from the table then his information must be transferred to other table.
+6. Count of students whose father and mother type of organization is same.
+7. Count of students according to their distances from school.
+8. Name of students whose mother is working and name of students whose father isworking. List name of it is coming more than once
+9. Student whose only parentis working will be given 10% discount in fees. 
+10. Count of students who paid their fees and not paid their fees.
+-- 1. Create tables to store student and parent information
+
+CREATE TABLE students (
+    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    distance_from_school DECIMAL(5,2) NOT NULL,
+    house_type ENUM('own', 'rental') NOT NULL,
+    fees_paid BOOLEAN NOT NULL
+);
+
+CREATE TABLE parents (
+    parent_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    parent_type ENUM('father', 'mother') NOT NULL,
+    working_status BOOLEAN NOT NULL,
+    organization_type VARCHAR(255),
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+CREATE TABLE deleted_students (
+    student_id INT,
+    name VARCHAR(255),
+    distance_from_school DECIMAL(5,2),
+    house_type ENUM('own', 'rental'),
+    fees_paid BOOLEAN,
+    PRIMARY KEY (student_id)
+);
+
+CREATE TABLE deleted_parents (
+    parent_id INT,
+    student_id INT,
+    parent_type ENUM('father', 'mother'),
+    working_status BOOLEAN,
+    organization_type VARCHAR(255),
+    PRIMARY KEY (parent_id)
+);
+
+-- 2. Insert sample data into the tables
+
+INSERT INTO students (name, distance_from_school, house_type, fees_paid) VALUES
+('John Doe', 3.5, 'own', TRUE),
+('Jane Smith', 5.0, 'rental', FALSE),
+('Alice Johnson', 2.0, 'own', TRUE),
+('Bob Brown', 7.5, 'rental', TRUE);
+
+INSERT INTO parents (student_id, parent_type, working_status, organization_type) VALUES
+(1, 'father', TRUE, 'IT'),
+(1, 'mother', FALSE, NULL),
+(2, 'father', TRUE, 'Finance'),
+(2, 'mother', TRUE, 'Education'),
+(3, 'father', FALSE, NULL),
+(3, 'mother', TRUE, 'Healthcare'),
+(4, 'father', TRUE, 'IT'),
+(4, 'mother', TRUE, 'IT');
+
+-- 3. Count of students whose one parent working and both parent working
+
+SELECT 
+    COUNT(DISTINCT s.student_id) AS one_parent_working
+FROM 
+    students s
+JOIN 
+    parents p1 ON s.student_id = p1.student_id
+JOIN 
+    parents p2 ON s.student_id = p2.student_id
+WHERE 
+    p1.working_status != p2.working_status;
+
+SELECT 
+    COUNT(DISTINCT s.student_id) AS both_parents_working
+FROM 
+    students s
+JOIN 
+    parents p1 ON s.student_id = p1.student_id
+JOIN 
+    parents p2 ON s.student_id = p2.student_id
+WHERE 
+    p1.working_status = TRUE AND p2.working_status = TRUE;
+
+-- 4. Count of students living in own house and rental.
+
+SELECT 
+    house_type, COUNT(*) AS count
+FROM 
+    students
+GROUP BY 
+    house_type;
+
+-- 5. Transfer student information to another table when deleted.
+
+CREATE TRIGGER after_student_delete
+AFTER DELETE ON students
+FOR EACH ROW
+BEGIN
+    INSERT INTO deleted_students (student_id, name, distance_from_school, house_type, fees_paid)
+    VALUES (OLD.student_id, OLD.name, OLD.distance_from_school, OLD.house_type, OLD.fees_paid);
+
+    INSERT INTO deleted_parents (parent_id, student_id, parent_type, working_status, organization_type)
+    SELECT parent_id, student_id, parent_type, working_status, organization_type
+    FROM parents WHERE student_id = OLD.student_id;
+END;
+
+-- 6. Count of students whose father and mother type of organization is same.
+
+SELECT 
+    COUNT(DISTINCT s.student_id) AS same_organization_type
+FROM 
+    students s
+JOIN 
+    parents p1 ON s.student_id = p1.student_id AND p1.parent_type = 'father'
+JOIN 
+    parents p2 ON s.student_id = p2.student_id AND p2.parent_type = 'mother'
+WHERE 
+    p1.organization_type = p2.organization_type;
+
+-- 7. Count of students according to their distances from school.
+
+SELECT 
+    distance_from_school, COUNT(*) AS count
+FROM 
+    students
+GROUP BY 
+    distance_from_school;
+
+-- 8. Names of students whose mother is working and names of students whose father is working.
+
+SELECT 
+    s.name
+FROM 
+    students s
+JOIN 
+    parents p ON s.student_id = p.student_id
+WHERE 
+    p.parent_type = 'mother' AND p.working_status = TRUE
+GROUP BY 
+    s.name
+HAVING 
+    COUNT(s.name) > 1;
+
+SELECT 
+    s.name
+FROM 
+    students s
+JOIN 
+    parents p ON s.student_id = p.student_id
+WHERE 
+    p.parent_type = 'father' AND p.working_status = TRUE
+GROUP BY 
+    s.name
+HAVING 
+    COUNT(s.name) > 1;
+
+-- 9. Students whose only one parent is working will be given a 10% discount in fees.
+
+UPDATE 
+    students s
+JOIN 
+    (SELECT student_id
+     FROM parents
+     GROUP BY student_id
+     HAVING SUM(working_status) = 1) AS p ON s.student_id = p.student_id
+SET 
+    fees_paid = fees_paid * 0.90;
+
+-- 10. Count of students who paid their fees and not paid their fees.
+
+SELECT 
+    fees_paid, COUNT(*) AS count
+FROM 
+    students
+GROUP BY 
+    fees_paid;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Consider the given database:
+Project (project_id, proj_name, chief arch)
+Employee (emp-id, emp-name)
+Assigned_To (Project - id, emp-id)
+
+find the SQL queries for the following Statements:
+1. Get the employee number of employee working on project C353.
+2. Get details of employees working on projet C353.
+3. Obtain details of employees working On database project.
+4. Get the employee number of employer who are not on any project.
+5. Display project_id, proj_name_emp_id and emp-name.
+6. Display project_id, proj_name, emp_id and emp_name who are working on project "Avenue Archi"
+-- Create tables
+CREATE TABLE Project (
+    project_id INT PRIMARY KEY,
+    proj_name VARCHAR(255),
+    chief_arch VARCHAR(255)
+);
+
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(255)
+);
+
+CREATE TABLE Assigned_To (
+    project_id INT,
+    emp_id INT,
+    FOREIGN KEY (project_id) REFERENCES Project(project_id),
+    FOREIGN KEY (emp_id) REFERENCES Employee(emp_id)
+);
+
+-- Insert sample data
+INSERT INTO Project (project_id, proj_name, chief_arch) VALUES
+(1, 'C353', 'John Doe'),
+(2, 'Avenue Archi', 'Jane Smith');
+
+INSERT INTO Employee (emp_id, emp_name) VALUES
+(1, 'Alice'),
+(2, 'Bob'),
+(3, 'Charlie'),
+(4, 'David');
+
+INSERT INTO Assigned_To (project_id, emp_id) VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(2, 4);
+
+-- SQL Queries
+
+-- 1. Get the employee number of employees working on project C353.
+SELECT emp_id
+FROM Assigned_To
+WHERE project_id = (SELECT project_id FROM Project WHERE proj_name = 'C353');
+
+-- 2. Get details of employees working on project C353.
+SELECT e.*
+FROM Employee e
+INNER JOIN Assigned_To a ON e.emp_id = a.emp_id
+WHERE a.project_id = (SELECT project_id FROM Project WHERE proj_name = 'C353');
+
+-- 3. Obtain details of employees working on project "Avenue Archi".
+SELECT e.*
+FROM Employee e
+INNER JOIN Assigned_To a ON e.emp_id = a.emp_id
+WHERE a.project_id = (SELECT project_id FROM Project WHERE proj_name = 'Avenue Archi');
+
+-- 4. Get the employee number of employees who are not on any project.
+SELECT emp_id
+FROM Employee
+WHERE emp_id NOT IN (SELECT emp_id FROM Assigned_To);
+
+-- 5. Display project_id, proj_name, and emp_id.
+SELECT p.project_id, p.proj_name, a.emp_id
+FROM Project p
+INNER JOIN Assigned_To a ON p.project_id = a.project_id;
+
+-- 6. Display project_id, proj_name, emp_id, and emp_name who are working on project "Avenue Archi".
+SELECT p.project_id, p.proj_name, e.emp_id, e.emp_name
+FROM Project p
+INNER JOIN Assigned_To a ON p.project_id = a.project_id
+INNER JOIN Employee e ON a.emp_id = e.emp_id
+WHERE p.proj_name = 'Avenue Archi';
